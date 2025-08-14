@@ -1,11 +1,13 @@
-export function parseSkillPath(text: string) {
+import { SkillPath, Unit, Module, Lesson, Concept } from '@/types/skillPath';
+
+export function parseSkillPath(text: string): SkillPath {
     const lines = text.split("\n").map(l => l.trim()).filter(l => l !== "");
 
-    const skillPath = { units: [] as any[] };
-    let currentUnit: any = null;
-    let currentModule: any = null;
-    let currentLesson: any = null;
-    let currentConcept: any = null;
+    const skillPath: SkillPath = { units: [] };
+    let currentUnit: Unit | null = null;
+    let currentModule: Module | null = null;
+    let currentLesson: Lesson | null = null;
+    let currentConcept: Concept | null = null;
     let isInConcepts = false;
 
     for (let line of lines) {

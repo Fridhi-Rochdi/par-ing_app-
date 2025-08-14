@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { parseSkillPath } from "@/utils/skillPathParser";
+import { SkillPath, Unit, Module, Lesson } from "@/types/skillPath";
 
 export default function Home() {
   const [inputText, setInputText] = useState("");
-  const [parsedResult, setParsedResult] = useState<any>(null);
+  const [parsedResult, setParsedResult] = useState<SkillPath | null>(null);
   const [error, setError] = useState("");
 
   const handleParse = () => {
@@ -155,16 +156,17 @@ Objectif : Comprendre et créer des classes et objets en Java.
               </div>
               <div className="bg-green-100 p-4 rounded-md text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  {parsedResult.units?.reduce((total: number, unit: any) => 
+                  {parsedResult.units?.reduce((total: number, unit: Unit) => 
                     total + (unit.modules?.length || 0), 0) || 0}
                 </div>
                 <div className="text-green-800">Modules</div>
               </div>
               <div className="bg-purple-100 p-4 rounded-md text-center">
                 <div className="text-2xl font-bold text-purple-600">
-                  {parsedResult.units?.reduce((total: number, unit: any) => 
-                    total + (unit.modules?.reduce((moduleTotal: number, module: any) => 
-                      moduleTotal + (module.sections?.concepts?.length || 0), 0) || 0), 0) || 0}
+                  {parsedResult.units?.reduce((total: number, unit: Unit) => 
+                    total + (unit.modules?.reduce((moduleTotal: number, module: Module) => 
+                      moduleTotal + (module.lessons?.reduce((lessonTotal: number, lesson: Lesson) => 
+                        lessonTotal + (lesson.concepts?.length || 0), 0) || 0), 0) || 0), 0) || 0}
                 </div>
                 <div className="text-purple-800">Concepts</div>
               </div>
