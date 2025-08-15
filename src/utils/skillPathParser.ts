@@ -1,7 +1,10 @@
 import { SkillPath, Unit, Module, Lesson, Concept } from '@/types/skillPath';
 
-export function parseSkillPath(text: string): SkillPath {
+export function parseSkillPath(text: string, forceBacLevel: boolean = false): SkillPath {
     const lines = text.split("\n").map(l => l.trim()).filter(l => l !== "");
+
+    // Détecter si c'est un skill path de niveau bac (automatique ou forcé par l'utilisateur)
+    const isBacLevel = forceBacLevel || /bac/i.test(text);
 
     const skillPath: SkillPath = { units: [] };
     let currentUnit: Unit | null = null;
@@ -82,6 +85,7 @@ export function parseSkillPath(text: string): SkillPath {
                     quiz: "",
                     project: ""
                 };
+                
                 currentModule.lessons.push(currentLesson);
             }
 
@@ -120,6 +124,7 @@ export function parseSkillPath(text: string): SkillPath {
                     quiz: "",
                     project: ""
                 };
+                
                 currentModule.lessons.push(currentLesson);
                 isInConcepts = false;
             }
@@ -147,6 +152,15 @@ export function parseSkillPath(text: string): SkillPath {
                 } else if (sectionType.includes("projet")) {
                     currentLesson.project = content || "Voir détails ci-dessous";
                 }
+            }
+            continue;
+        }
+
+        // Détection des corrections de type bac (seulement si c'est un skill path bac)
+        if (isBacLevel && /^\s*-?\s*Correction\s+type\s+Bac\s*:/i.test(line) && currentLesson) {
+            const match = line.match(/Correction\s+type\s+Bac\s*:\s*(.+)/i);
+            if (match) {
+                currentLesson.correction_bac = `${match[1].trim()} (videos style scrimba + challenge si nécessaire)`;
             }
             continue;
         }
@@ -205,12 +219,11 @@ export function parseSkillPath(text: string): SkillPath {
                     if (!currentConcept) {
                         currentConcept = {
                             title: "Course Content",
-                            videos: [],
-                            resources: []
+                            videos_scrimba: []
                         };
                         currentLesson.concepts.push(currentConcept);
                     }
-                    currentConcept.videos.push(match[1].trim());
+                    currentConcept.videos_scrimba.push(`${match[1].trim()} (videos style scrimba + challenge si nécessaire)`);
                 }
             }
             // Vidéo Scrimba (mais pas dans un contexte de projet)
@@ -220,12 +233,11 @@ export function parseSkillPath(text: string): SkillPath {
                     if (!currentConcept) {
                         currentConcept = {
                             title: "Course Content", 
-                            videos: [],
-                            resources: []
+                            videos_scrimba: []
                         };
                         currentLesson.concepts.push(currentConcept);
                     }
-                    currentConcept.videos.push(match[1].trim());
+                    currentConcept.videos_scrimba.push(`${match[1].trim()} (videos style scrimba + challenge si nécessaire)`);
                 }
             }
             // Article
@@ -235,12 +247,11 @@ export function parseSkillPath(text: string): SkillPath {
                     if (!currentConcept) {
                         currentConcept = {
                             title: "Course Content",
-                            videos: [],
-                            resources: []
+                            videos_scrimba: []
                         };
                         currentLesson.concepts.push(currentConcept);
                     }
-                    currentConcept.videos.push(match[1].trim());
+                    currentConcept.videos_scrimba.push(`${match[1].trim()} (videos style scrimba + challenge si nécessaire)`);
                 }
             }
             // Nouveau concept principal (détection améliorée)
@@ -253,18 +264,17 @@ export function parseSkillPath(text: string): SkillPath {
                 // Ne créer un nouveau concept que si ce n'est pas déjà fait
                 currentConcept = {
                     title: line.replace(/^\s*-\s*/, "").trim(),
-                    videos: [],
-                    resources: []
+                    videos_scrimba: []
                 };
                 currentLesson.concepts.push(currentConcept);
             }
-            // URL de ressource
-            else if (/https?:\/\//.test(line) && currentConcept) {
-                const urlMatch = line.match(/(https?:\/\/[^\s]+)/);
-                if (urlMatch) {
-                    currentConcept.resources.push(urlMatch[1]);
-                }
-            }
+            // URLs ignorées (resources supprimées du JSON)
+            // else if (/https?:\/\//.test(line) && currentConcept) {
+            //     const urlMatch = line.match(/(https?:\/\/[^\s]+)/);
+            //     if (urlMatch) {
+            //         // Resources supprimées du JSON de sortie
+            //     }
+            // }
         }
 
         // Réinitialiser isInConcepts si on rencontre une nouvelle section

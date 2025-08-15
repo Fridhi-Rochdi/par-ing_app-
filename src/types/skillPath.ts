@@ -1,8 +1,7 @@
 // Types pour la structure du skill path
 export interface Concept {
     title: string;
-    videos: string[];
-    resources: string[];
+    videos_scrimba: string[];
 }
 
 export interface Lesson {
@@ -12,6 +11,7 @@ export interface Lesson {
     lab_ngc: string;
     quiz: string;
     project: string;
+    correction_bac?: string;
 }
 
 export interface Module {
