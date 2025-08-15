@@ -8,11 +8,12 @@ export default function Home() {
   const [inputText, setInputText] = useState("");
   const [parsedResult, setParsedResult] = useState<SkillPath | null>(null);
   const [error, setError] = useState("");
+  const [isBacLevel, setIsBacLevel] = useState(false);
 
   const handleParse = () => {
     try {
       setError("");
-      const result = parseSkillPath(inputText);
+      const result = parseSkillPath(inputText, isBacLevel);
       setParsedResult(result);
     } catch (err) {
       setError("Erreur lors du parsing: " + (err as Error).message);
@@ -24,6 +25,7 @@ export default function Home() {
     setInputText("");
     setParsedResult(null);
     setError("");
+    setIsBacLevel(false);
   };
 
   const sampleInput = `# Unité 2 : Programmation Orientée Objet (OOP)
@@ -77,6 +79,21 @@ Objectif : Comprendre et créer des classes et objets en Java.
               placeholder="Collez votre skill path ici..."
               className="w-full h-96 p-3 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
             />
+            
+            {/* Checkbox pour niveau bac */}
+            <div className="mt-4 mb-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={isBacLevel}
+                  onChange={(e) => setIsBacLevel(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <span className="text-sm font-medium text-gray-900">
+                  Niveau Bac (inclure les corrections de type bac)
+                </span>
+              </label>
+            </div>
             
             <div className="flex gap-3 mt-4">
               <button
